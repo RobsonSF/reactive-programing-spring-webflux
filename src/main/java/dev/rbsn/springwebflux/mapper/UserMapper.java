@@ -2,14 +2,17 @@ package dev.rbsn.springwebflux.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.stereotype.Component;
+import org.mapstruct.NullValueCheckStrategy;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import dev.rbsn.springwebflux.entity.User;
 import dev.rbsn.springwebflux.model.request.UserRequest;
-@Component
+
 @Mapper(
-		componentModel = "spring"
-)
+		componentModel = "spring",
+		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+		nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS		
+		)
 public interface UserMapper {
 	
 	@Mapping(target = "id", ignore = true)

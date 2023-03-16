@@ -4,5 +4,5 @@ public record UserResponse(
 		String id,
 		String name,
 		String email,
-		String passwword
+		String password
 ) {}
