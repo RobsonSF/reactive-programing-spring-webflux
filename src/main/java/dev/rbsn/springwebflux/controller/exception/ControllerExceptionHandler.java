@@ -1,9 +1,11 @@
 package dev.rbsn.springwebflux.controller.exception;
 
 import static  org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.time.LocalDateTime;
 
+import dev.rbsn.springwebflux.service.exception.ObjectNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -50,6 +52,22 @@ public class ControllerExceptionHandler {
 		
 		return ResponseEntity.status(BAD_REQUEST).body(Mono.just(validationError));
 		
+	}
+
+	@ExceptionHandler(ObjectNotFoundException.class)
+	ResponseEntity<Mono<StandardError>> objectNotFoundException(
+			ObjectNotFoundException err, ServerHttpRequest request
+	){
+		return ResponseEntity.status(NOT_FOUND)
+				.body(Mono.just(
+						StandardError.builder()
+								.timestamp(LocalDateTime.now())
+								.status(NOT_FOUND.value())
+								.error(NOT_FOUND.getReasonPhrase())
+								.message(err.getMessage())
+								.path(request.getPath().toString())
+								.build()
+				));
 	}
 	
 	private String verifyMessageException(String message) {

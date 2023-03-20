@@ -1,5 +1,6 @@
 package dev.rbsn.springwebflux.controller.impl;
 
+import dev.rbsn.springwebflux.mapper.UserMapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class UserControllerImpl implements UserController{
 	@Autowired
 	private UserService service;
 
+	@Autowired
+	private UserMapperImpl mapper;
+
 	@Override
 	public ResponseEntity<Mono<Void>> save(final UserRequest request) {
 		return ResponseEntity
@@ -28,9 +32,8 @@ public class UserControllerImpl implements UserController{
 	}
 
 	@Override
-	public ResponseEntity<Mono<UserResponse>> find(String id) {
-		// TODO Auto-generated method stub
-		return null;
+	public ResponseEntity<Mono<UserResponse>> findById(String id) {
+		return ResponseEntity.ok().body(service.findById(id).map(mapper::toResponse));
 	}
 
 	@Override
