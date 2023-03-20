@@ -1,7 +1,6 @@
 package dev.rbsn.springwebflux.controller.impl;
 
 import dev.rbsn.springwebflux.mapper.UserMapperImpl;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +48,7 @@ public class UserControllerImpl implements UserController{
 
 	@Override
 	public ResponseEntity<Mono<Void>> delete(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(service.delete(id).then());
 	}
 
 }
