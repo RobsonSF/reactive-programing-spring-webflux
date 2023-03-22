@@ -55,7 +55,7 @@ class UserControllerImplTest {
     }
     @Test
     void should_not_be_able_to_create_a_new_user_when_name_is_invalid() {
-     final var request = new UserRequest("validName ", "valid@email.com", "validPass");
+     final var request = new UserRequest("invalidName ", "valid@email.com", "validPass");
 
      webTestClient.post().uri("/users")
              .contentType(MediaType.APPLICATION_JSON)
@@ -70,5 +70,24 @@ class UserControllerImplTest {
              .jsonPath("$.message").isEqualTo("Error on validation attributes")
              .jsonPath("$.errors[0].fildName").isEqualTo("name")
              .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end");
+    }
+
+    @Test
+    void should_not_be_able_to_create_a_new_user_when_email_is_invalid() {
+     final var request = new UserRequest("validName", "invalidemail.com", "validPass");
+
+     webTestClient.post().uri("/users")
+             .contentType(MediaType.APPLICATION_JSON)
+             .body(BodyInserters.fromValue(request))
+             .exchange()
+             .expectStatus()
+             .isBadRequest()
+             .expectBody()
+             .jsonPath("$.path").isEqualTo("/users")
+             .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+             .jsonPath("$.error").isEqualTo("Validation error")
+             .jsonPath("$.message").isEqualTo("Error on validation attributes")
+             .jsonPath("$.errors[0].fildName").isEqualTo("email")
+             .jsonPath("$.errors[0].message").isEqualTo("invalid e-mail");
     }
 }
