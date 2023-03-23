@@ -96,8 +96,8 @@ class UserControllerImplTest {
     }
 
     @Test
-    void should_not_be_able_to_create_a_new_user_when_password_is_invalid() {
-        final var invalidPassword = "invalidPassword ";
+    void should_not_be_able_to_create_a_new_user_when_password_with_blank_spaces() {
+        final var invalidPassword = " password ";
         final var request = new UserRequest(VALID_NAME, VALID_EMAIL, invalidPassword);
 
         webTestClient.post().uri("/users")
@@ -110,10 +110,29 @@ class UserControllerImplTest {
                 .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
                 .jsonPath("$.error").isEqualTo("Validation error")
                 .jsonPath("$.message").isEqualTo("Error on validation attributes")
-                .jsonPath("$.errors[0].fildName").isEqualTo("password")
-                .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end")
-                .jsonPath("$.errors[1].fildName").isEqualTo("password")
-                .jsonPath("$.errors[1].message").isEqualTo("must be between 6 and 10 characters");
+                .jsonPath("$.errors[0].fieldName").isEqualTo("password")
+                .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end");
+
+    }
+
+    @Test
+    void should_not_be_able_to_create_a_new_user_when_password_with_wrong_parameters() {
+        final var invalidPassword = "invalidPassword";
+        final var request = new UserRequest(VALID_NAME, VALID_EMAIL, invalidPassword);
+
+        webTestClient.post().uri("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("password")
+                .jsonPath("$.errors[0].message").isEqualTo("must be between 6 and 10 characters");
+
     }
 
     @Test
