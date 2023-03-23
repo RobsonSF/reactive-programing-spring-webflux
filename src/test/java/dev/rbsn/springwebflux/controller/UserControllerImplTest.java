@@ -201,7 +201,7 @@ class UserControllerImplTest {
     }
 
     @Test
-    void should_be_able_to_update_a_user() {
+    void should_be_able_to_update_a_user_when_id_is_valid() {
         final var request = new UserRequest(VALID_NAME, VALID_EMAIL, VALID_PASS);
         final var UserResponse = new UserResponse(VALID_ID, VALID_NAME, VALID_EMAIL, VALID_PASS);
 
@@ -221,5 +221,30 @@ class UserControllerImplTest {
 
         verify(service, times(1)).update(anyString(), any(UserRequest.class));
         verify(mapper).toResponse(any(User.class));
+    }
+
+    @Test
+    void should_not_be_able_to_update_a_user_when_id_is_invalid() {
+        final var invalidId = "invalidId";
+        final var request = new UserRequest(VALID_NAME, VALID_EMAIL, VALID_PASS);
+
+        when(service.update(anyString(), any(UserRequest.class))).thenThrow(new ObjectNotFoundException(
+                String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()))
+        );
+
+        webTestClient.patch().uri("/users/"+invalidId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users/"+invalidId)
+                .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
+                .jsonPath("$.error").isEqualTo("Not Found")
+                .jsonPath("$.message").isEqualTo(
+                        String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName())
+                );
+
+        verify(service, times(1)).update(anyString(), any(UserRequest.class));
     }
 }
