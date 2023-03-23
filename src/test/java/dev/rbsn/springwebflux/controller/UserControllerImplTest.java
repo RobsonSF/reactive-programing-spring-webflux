@@ -18,6 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -152,5 +153,23 @@ class UserControllerImplTest {
                 .jsonPath("$.error").isEqualTo("Not Found")
                 .jsonPath("$.message").isEqualTo(
                         String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()));
+    }
+
+    @Test
+    void should_be_able_to_find_all_user() {
+        final var UserResponse = new UserResponse(VALID_ID, VALID_NAME, VALID_EMAIL, VALID_PASS);
+
+        when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(UserResponse);
+
+        webTestClient.get().uri("/users")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.[0].id").isEqualTo(VALID_ID)
+                .jsonPath("$.[0].name").isEqualTo(VALID_NAME)
+                .jsonPath("$.[0].email").isEqualTo(VALID_EMAIL)
+                .jsonPath("$.[0].password").isEqualTo(VALID_PASS);
     }
 }
