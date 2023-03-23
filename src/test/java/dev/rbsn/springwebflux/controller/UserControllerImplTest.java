@@ -199,4 +199,27 @@ class UserControllerImplTest {
         verify(service, times(1)).findAll();
         verify(mapper, times(1)).toResponse(any(User.class));
     }
+
+    @Test
+    void should_be_able_to_update_a_user() {
+        final var request = new UserRequest(VALID_NAME, VALID_EMAIL, VALID_PASS);
+        final var UserResponse = new UserResponse(VALID_ID, VALID_NAME, VALID_EMAIL, VALID_PASS);
+
+        when(service.update(anyString(), any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
+        when(mapper.toResponse(any(User.class))).thenReturn(UserResponse);
+
+        webTestClient.patch().uri("/users/"+VALID_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(VALID_ID)
+                .jsonPath("$.name").isEqualTo(VALID_NAME)
+                .jsonPath("$.email").isEqualTo(VALID_EMAIL)
+                .jsonPath("$.password").isEqualTo(VALID_PASS);
+
+        verify(service, times(1)).update(anyString(), any(UserRequest.class));
+        verify(mapper).toResponse(any(User.class));
+    }
 }
