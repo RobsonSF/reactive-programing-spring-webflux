@@ -1,12 +1,13 @@
 package dev.rbsn.springwebflux.controller;
 
 import dev.rbsn.springwebflux.entity.User;
-import dev.rbsn.springwebflux.mapper.UserMapperImpl;
+import dev.rbsn.springwebflux.mapper.UserMapper;
 import dev.rbsn.springwebflux.model.request.UserRequest;
 import dev.rbsn.springwebflux.model.response.UserResponse;
 import dev.rbsn.springwebflux.service.UserService;
-
 import dev.rbsn.springwebflux.service.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,14 +15,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -42,7 +41,7 @@ class UserControllerImplTest {
     private UserService service;
 
     @MockBean
-    private UserMapperImpl mapper;
+    private UserMapper mapper;
 
     @Test
     void should_be_able_to_create_a_new_user_when_all_parameters_are_valid() {

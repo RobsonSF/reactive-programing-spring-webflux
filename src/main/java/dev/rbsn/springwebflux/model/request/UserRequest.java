@@ -18,7 +18,7 @@ public record UserRequest (
 		String email,
 
 		@TrimString
-		@Size(min =  6, max =10, message = "must be between {min} and {max} characteres")
+		@Size(min =  6, max =10, message = "must be between {min} and {max} characters")
 		@NotEmpty(message = "must not be null or empty")
 		String password
 ) {}

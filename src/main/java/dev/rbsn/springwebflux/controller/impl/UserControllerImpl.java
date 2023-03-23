@@ -1,6 +1,6 @@
 package dev.rbsn.springwebflux.controller.impl;
 
-import dev.rbsn.springwebflux.mapper.UserMapperImpl;
+import dev.rbsn.springwebflux.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class UserControllerImpl implements UserController{
 	private UserService service;
 
 	@Autowired
-	private UserMapperImpl mapper;
+	private UserMapper mapper;
 
 	@Override
 	public ResponseEntity<Mono<Void>> save(final UserRequest request) {
