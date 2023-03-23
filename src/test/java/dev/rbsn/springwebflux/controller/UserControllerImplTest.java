@@ -30,7 +30,11 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @AutoConfigureWebTestClient
 class UserControllerImplTest {
 
-   @Autowired
+    private static final String VALID_ID = "validId";
+    private static final String VALID_NAME = "validName";
+    private static final String VALID_EMAIL = "valid@email.com";
+    private static final String VALID_PASS = "validPass";
+    @Autowired
     private WebTestClient webTestClient;
 
     @MockBean
@@ -41,7 +45,7 @@ class UserControllerImplTest {
 
     @Test
     void should_be_able_to_create_a_new_user_when_all_parameters_are_valid() {
-        final var request = new UserRequest("validName", "valid@email.com", "validPass");
+        final var request = new UserRequest(VALID_NAME, VALID_EMAIL, VALID_PASS);
 
         when(service.save(any(UserRequest.class))).thenReturn(Mono.just(User.builder().build()));
 
@@ -55,43 +59,46 @@ class UserControllerImplTest {
     }
     @Test
     void should_not_be_able_to_create_a_new_user_when_name_is_invalid() {
-     final var request = new UserRequest("invalidName ", "valid@email.com", "validPass");
+        final var invalidName = "invalidName   ";
+        final var request = new UserRequest(invalidName, VALID_EMAIL, VALID_PASS);
 
-     webTestClient.post().uri("/users")
-             .contentType(MediaType.APPLICATION_JSON)
-             .body(BodyInserters.fromValue(request))
-             .exchange()
-             .expectStatus().isBadRequest()
-             .expectBody()
-             .jsonPath("$.path").isEqualTo("/users")
-             .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
-             .jsonPath("$.error").isEqualTo("Validation error")
-             .jsonPath("$.message").isEqualTo("Error on validation attributes")
-             .jsonPath("$.errors[0].fildName").isEqualTo("name")
-             .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end");
+        webTestClient.post().uri("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fildName").isEqualTo("name")
+                .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end");
     }
 
     @Test
     void should_not_be_able_to_create_a_new_user_when_email_is_invalid() {
-     final var request = new UserRequest("validName", "invalidEmail.com", "validPass");
+        final var invalidEmail = "invalidEmail";
+        final var request = new UserRequest(VALID_NAME, invalidEmail, VALID_PASS);
 
-     webTestClient.post().uri("/users")
-             .contentType(MediaType.APPLICATION_JSON)
-             .body(BodyInserters.fromValue(request))
-             .exchange()
-             .expectStatus().isBadRequest()
-             .expectBody()
-             .jsonPath("$.path").isEqualTo("/users")
-             .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
-             .jsonPath("$.error").isEqualTo("Validation error")
-             .jsonPath("$.message").isEqualTo("Error on validation attributes")
-             .jsonPath("$.errors[0].fildName").isEqualTo("email")
-             .jsonPath("$.errors[0].message").isEqualTo("invalid e-mail");
+        webTestClient.post().uri("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(request))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users")
+                .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
+                .jsonPath("$.error").isEqualTo("Validation error")
+                .jsonPath("$.message").isEqualTo("Error on validation attributes")
+                .jsonPath("$.errors[0].fildName").isEqualTo("email")
+                .jsonPath("$.errors[0].message").isEqualTo("invalid e-mail");
     }
 
     @Test
     void should_not_be_able_to_create_a_new_user_when_password_is_invalid() {
-        final var request = new UserRequest("validName", "valid@email.com", "invalidPassword ");
+        final var invalidPassword = "invalidPassword ";
+        final var request = new UserRequest(VALID_NAME, VALID_EMAIL, invalidPassword);
 
         webTestClient.post().uri("/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -106,34 +113,34 @@ class UserControllerImplTest {
                 .jsonPath("$.errors[0].fildName").isEqualTo("password")
                 .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end")
                 .jsonPath("$.errors[1].fildName").isEqualTo("password")
-                .jsonPath("$.errors[1].message").isEqualTo("must be between 6 and 10 characteres");
+                .jsonPath("$.errors[1].message").isEqualTo("must be between 6 and 10 characters");
     }
 
     @Test
     void should_be_able_to_find_a_user_when_id_is_valid() {
-        var UserResponse = new UserResponse("validId", "validName", "valid@email.com", "validPass");
+        final var UserResponse = new UserResponse(VALID_ID, VALID_NAME, VALID_EMAIL, VALID_PASS);
 
         when(service.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
         when(mapper.toResponse(any(User.class))).thenReturn(UserResponse);
 
-        webTestClient.get().uri("/users/validId")
+        webTestClient.get().uri("/users/"+VALID_ID)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.id").isEqualTo("validId")
-                .jsonPath("$.name").isEqualTo("validName")
-                .jsonPath("$.email").isEqualTo("valid@email.com")
-                .jsonPath("$.password").isEqualTo("validPass");
+                .jsonPath("$.id").isEqualTo(VALID_ID)
+                .jsonPath("$.name").isEqualTo(VALID_NAME)
+                .jsonPath("$.email").isEqualTo(VALID_EMAIL)
+                .jsonPath("$.password").isEqualTo(VALID_PASS);
     }
 
     @Test
     void should_not_be_able_to_find_a_user_when_id_is_invalid() {
-        var invalidId = "invalidId";
+        final var invalidId = "invalidId";
 
-        when(service.findById(anyString())).thenReturn(Mono.error(new ObjectNotFoundException(
-                String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName())
-        )));
+        when(service.findById(anyString())).thenThrow(new ObjectNotFoundException(
+                String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()))
+        );
 
         webTestClient.get().uri("/users/"+invalidId)
                 .accept(MediaType.APPLICATION_JSON)
