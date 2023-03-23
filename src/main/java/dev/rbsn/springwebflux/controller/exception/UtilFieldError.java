@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-final class UtilFildError {
-	private String fildName;
+final class UtilFieldError {
+	private String fieldName;
 	private  String message;
 
 }
