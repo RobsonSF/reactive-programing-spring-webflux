@@ -257,4 +257,26 @@ class UserControllerImplTest {
 
         verify(service, times(1)).delete(anyString());
     }
+
+    @Test
+    void should_not_be_able_to_delete_a_user_when_id_is_invalid() {
+        final var invalidId = "invalidId";
+
+        when(service.delete(anyString())).thenThrow(new ObjectNotFoundException(
+                String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()))
+        );
+
+        webTestClient.delete().uri("/users/"+invalidId)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users/"+invalidId)
+                .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
+                .jsonPath("$.error").isEqualTo("Not Found")
+                .jsonPath("$.message").isEqualTo(
+                        String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName())
+                );
+
+        verify(service, times(1)).delete(anyString());
+    }
 }
