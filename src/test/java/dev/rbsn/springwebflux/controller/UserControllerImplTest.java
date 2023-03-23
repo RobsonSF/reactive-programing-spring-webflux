@@ -6,6 +6,7 @@ import dev.rbsn.springwebflux.model.request.UserRequest;
 import dev.rbsn.springwebflux.model.response.UserResponse;
 import dev.rbsn.springwebflux.service.UserService;
 
+import dev.rbsn.springwebflux.service.exception.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -123,5 +125,25 @@ class UserControllerImplTest {
                 .jsonPath("$.name").isEqualTo("validName")
                 .jsonPath("$.email").isEqualTo("valid@email.com")
                 .jsonPath("$.password").isEqualTo("validPass");
+    }
+
+    @Test
+    void should_not_be_able_to_find_a_user_when_id_is_invalid() {
+        var invalidId = "invalidId";
+
+        when(service.findById(anyString())).thenReturn(Mono.error(new ObjectNotFoundException(
+                String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName())
+        )));
+
+        webTestClient.get().uri("/users/"+invalidId)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.path").isEqualTo("/users/"+invalidId)
+                .jsonPath("$.status").isEqualTo(NOT_FOUND.value())
+                .jsonPath("$.error").isEqualTo("Not Found")
+                .jsonPath("$.message").isEqualTo(
+                        String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()));
     }
 }
