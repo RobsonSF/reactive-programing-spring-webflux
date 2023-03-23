@@ -72,7 +72,7 @@ class UserControllerImplTest {
                 .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
                 .jsonPath("$.error").isEqualTo("Validation error")
                 .jsonPath("$.message").isEqualTo("Error on validation attributes")
-                .jsonPath("$.errors[0].fildName").isEqualTo("name")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("name")
                 .jsonPath("$.errors[0].message").isEqualTo("field cannot have blank spaces at the beginning or at the end");
     }
 
@@ -91,7 +91,7 @@ class UserControllerImplTest {
                 .jsonPath("$.status").isEqualTo(BAD_REQUEST.value())
                 .jsonPath("$.error").isEqualTo("Validation error")
                 .jsonPath("$.message").isEqualTo("Error on validation attributes")
-                .jsonPath("$.errors[0].fildName").isEqualTo("email")
+                .jsonPath("$.errors[0].fieldName").isEqualTo("email")
                 .jsonPath("$.errors[0].message").isEqualTo("invalid e-mail");
     }
 
@@ -151,6 +151,9 @@ class UserControllerImplTest {
                 .jsonPath("$.name").isEqualTo(VALID_NAME)
                 .jsonPath("$.email").isEqualTo(VALID_EMAIL)
                 .jsonPath("$.password").isEqualTo(VALID_PASS);
+
+        verify(service, times(1)).findById(anyString());
+        verify(mapper, times(1)).toResponse(any(User.class));
     }
 
     @Test
@@ -171,6 +174,9 @@ class UserControllerImplTest {
                 .jsonPath("$.error").isEqualTo("Not Found")
                 .jsonPath("$.message").isEqualTo(
                         String.format("Object not found id: %s Type: %s", invalidId, User.class.getSimpleName()));
+
+        verify(service, times(1)).findById(anyString());
+
     }
 
     @Test
@@ -189,5 +195,8 @@ class UserControllerImplTest {
                 .jsonPath("$.[0].name").isEqualTo(VALID_NAME)
                 .jsonPath("$.[0].email").isEqualTo(VALID_EMAIL)
                 .jsonPath("$.[0].password").isEqualTo(VALID_PASS);
+
+        verify(service, times(1)).findAll();
+        verify(mapper, times(1)).toResponse(any(User.class));
     }
 }
