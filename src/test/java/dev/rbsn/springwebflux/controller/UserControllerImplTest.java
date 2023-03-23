@@ -22,8 +22,7 @@ import reactor.core.publisher.Mono;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -246,5 +245,16 @@ class UserControllerImplTest {
                 );
 
         verify(service, times(1)).update(anyString(), any(UserRequest.class));
+    }
+
+    @Test
+    void should_be_able_to_delete_a_user_when_id_is_valid() {
+        when(service.delete(anyString())).thenReturn(Mono.empty());
+
+        webTestClient.delete().uri("/users/"+VALID_ID)
+                .exchange()
+                .expectStatus().isNoContent();
+
+        verify(service, times(1)).delete(anyString());
     }
 }
